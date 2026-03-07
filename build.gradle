@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.7-SNAPSHOT'
+	id 'fabric-loom' version '1.6.12'
 	id 'maven-publish'
 }
 
@@ -11,19 +11,6 @@ base {
 }
 
 repositories {
-}
-
-loom {
-	splitEnvironmentSourceSets()
-	mods {
-		superheromod {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
-	}
-}
-
-fabricApi {
 }
 
 dependencies {
@@ -52,7 +39,6 @@ java {
 }
 
 jar {
-	inputs.property 'archivesName', project.base.archivesName
 	from('LICENSE') {
 		rename { "${it}_${project.base.archivesName}" }
 	}
