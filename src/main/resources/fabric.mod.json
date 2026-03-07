@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "superheromod",
+  "version": "1.0.0",
+  "name": "SuperHero Mod",
+  "description": "Spider-Man and Iron Man abilities for Minecraft 1.21.1!",
+  "authors": ["Arel2014"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.superhero.mod.SuperHeroMod"]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
