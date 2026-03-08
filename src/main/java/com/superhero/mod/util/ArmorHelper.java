@@ -1,11 +1,9 @@
 package com.superhero.mod.util;
 
 import com.superhero.mod.armor.IronManArmorItem;
-import com.superhero.mod.armor.SpiderManArmorMaterial;
 import com.superhero.mod.registry.ModItems;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 
