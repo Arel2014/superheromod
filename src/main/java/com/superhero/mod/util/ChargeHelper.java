@@ -1,5 +1,7 @@
 package com.superhero.mod.util;
 
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 
@@ -14,6 +16,7 @@ public class ChargeHelper {
         NbtCompound nbt = stack.getOrCreateNbt();
         if (!nbt.contains(KEY)) {
             nbt.putFloat(KEY, MAX_CHARGE);
+            stack.setNbt(nbt);
         }
         return nbt.getFloat(KEY);
     }
@@ -21,7 +24,9 @@ public class ChargeHelper {
     public static void setCharge(ItemStack stack, float charge) {
         if (stack.isEmpty()) return;
         charge = Math.max(0, Math.min(MAX_CHARGE, charge));
-        stack.getOrCreateNbt().putFloat(KEY, charge);
+        NbtCompound nbt = stack.getOrCreateNbt();
+        nbt.putFloat(KEY, charge);
+        stack.setNbt(nbt);
     }
 
     public static void drain(ItemStack stack, float amount) {
