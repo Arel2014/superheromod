@@ -9,8 +9,6 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -61,18 +59,20 @@ public class ArmorChargingStationBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-        super.writeNbt(nbt, registries);
+    protected void writeNbt(NbtCompound nbt) {
+        super.writeNbt(nbt);
         if (!storedArmor.isEmpty()) {
-            nbt.put("stored_armor", storedArmor.encode(registries));
+            NbtCompound armorNbt = new NbtCompound();
+            storedArmor.writeNbt(armorNbt);
+            nbt.put("stored_armor", armorNbt);
         }
     }
 
     @Override
-    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-        super.readNbt(nbt, registries);
-        if (nbt.contains("stored_armor", NbtElement.COMPOUND_TYPE)) {
-            storedArmor = ItemStack.fromNbt(registries, nbt.getCompound("stored_armor")).orElse(ItemStack.EMPTY);
+    public void readNbt(NbtCompound nbt) {
+        super.readNbt(nbt);
+        if (nbt.contains("stored_armor")) {
+            storedArmor = ItemStack.fromNbt(nbt.getCompound("stored_armor"));
         }
     }
 }
