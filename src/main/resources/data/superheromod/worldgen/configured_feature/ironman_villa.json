@@ -1,4 +1,3 @@
 {
-  "type": "superheromod:ironman_villa",
-  "config": {}
+  "type": "minecraft:no_op"
 }
