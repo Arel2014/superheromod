@@ -1,18 +1,17 @@
 package com.superhero.mod.armor;
 
 import com.superhero.mod.util.ChargeHelper;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
-import net.minecraft.world.World;
 
 import java.util.List;
 
 public class IronManArmorItem extends ArmorItem {
 
-    public IronManArmorItem(ArmorMaterial material, Type type, Settings settings) {
+    public IronManArmorItem(RegistryEntry<ArmorMaterial> material, Type type, Settings settings) {
         super(material, type, settings);
     }
 
@@ -36,7 +35,7 @@ public class IronManArmorItem extends ArmorItem {
     }
 
     @Override
-    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, net.minecraft.item.tooltip.TooltipType type) {
+    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
         if (getType() == Type.CHESTPLATE) {
             float charge = ChargeHelper.getCharge(stack);
             String color = charge < 20 ? "§c" : charge < 50 ? "§6" : "§b";
