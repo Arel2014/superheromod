@@ -1,25 +1,24 @@
 package com.superhero.mod.items;
 
 import com.superhero.mod.util.ArmorHelper;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.tooltip.TooltipType;
 
 import java.util.List;
 
@@ -33,7 +32,6 @@ public class WebShooterItem extends Item {
         super(settings);
     }
 
-    // RIGHT CLICK = shoot web
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
@@ -47,20 +45,33 @@ public class WebShooterItem extends Item {
                 player.sendMessage(Text.literal("§cThe web shooter strains your bare wrists!"), true);
             }
 
-            // Shoot web - raycast to find target
             Vec3d start = player.getEyePos();
             Vec3d end = start.add(player.getRotationVec(1.0f).multiply(WEB_RANGE));
 
-            // Check for entity hit
-            var entityHit = raycastEntity(world, player, start, end);
-            if (entityHit != null && entityHit.getEntity() instanceof LivingEntity living) {
-                // Web the entity
-                living.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 80, 5));
-                living.addStatusEffect(new StatusEffectInstance(StatusEffects.JUMP_BOOST, 80, 128));
-                world.playSound(null, living.getX(), living.getY(), living.getZ(),
+            var entities = world.getOtherEntities(player,
+                    player.getBoundingBox().expand(WEB_RANGE),
+                    e -> e instanceof LivingEntity);
+
+            LivingEntity hitEntity = null;
+            double closest = Double.MAX_VALUE;
+            for (var e : entities) {
+                var box = e.getBoundingBox().expand(0.3);
+                var hit = box.raycast(start, end);
+                if (hit.isPresent()) {
+                    double dist = start.distanceTo(hit.get());
+                    if (dist < closest) {
+                        closest = dist;
+                        hitEntity = (LivingEntity) e;
+                    }
+                }
+            }
+
+            if (hitEntity != null) {
+                hitEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 80, 5));
+                hitEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.JUMP_BOOST, 80, 128));
+                world.playSound(null, hitEntity.getX(), hitEntity.getY(), hitEntity.getZ(),
                         SoundEvents.BLOCK_SLIME_BLOCK_FALL, SoundCategory.PLAYERS, 1.0f, 0.8f);
             } else {
-                // Place cobweb on block hit
                 var blockHit = world.raycast(new RaycastContext(start, end,
                         RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, player));
                 if (blockHit.getType() == HitResult.Type.BLOCK) {
@@ -80,7 +91,6 @@ public class WebShooterItem extends Item {
         return TypedActionResult.success(stack, world.isClient());
     }
 
-    // LEFT CLICK (attack) = pull toward target - handled in IronManEvents via attack callback
     public static void handleLeftClick(PlayerEntity player, LivingEntity target) {
         World world = player.getWorld();
         boolean hasSpider = ArmorHelper.isWearingFullSpiderMan(player);
@@ -96,7 +106,7 @@ public class WebShooterItem extends Item {
         Vec3d targetPos = target.getPos().add(0, target.getHeight() / 2, 0);
         double distance = playerPos.distanceTo(targetPos);
 
-        if (distance <= 30.0) {
+        if (distance <= WEB_RANGE) {
             Vec3d dir = targetPos.subtract(playerPos).normalize();
             player.setVelocity(dir.multiply(PULL_STRENGTH).add(0, 0.3, 0));
             player.velocityModified = true;
@@ -106,23 +116,9 @@ public class WebShooterItem extends Item {
         }
     }
 
-    private net.minecraft.util.hit.EntityHitResult raycastEntity(World world, PlayerEntity player, Vec3d start, Vec3d end) {
-        var entities = world.getOtherEntities(player,
-                player.getBoundingBox().expand(30),
-                e -> e instanceof LivingEntity && e != player);
-        for (var entity : entities) {
-            var box = entity.getBoundingBox().expand(0.3);
-            var hit = box.raycast(start, end);
-            if (hit.isPresent()) {
-                return new net.minecraft.util.hit.EntityHitResult(entity, hit.get());
-            }
-        }
-        return null;
-    }
-
     @Override
     public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-        tooltip.add(Text.literal("§7Right Click: §fShoot Web / Entangle enemy"));
+        tooltip.add(Text.literal("§7Right Click: §fShoot Web"));
         tooltip.add(Text.literal("§7Left Click: §fPull toward target"));
         tooltip.add(Text.literal("§cWear Spider-Man armor or Elytra to avoid injury!"));
     }
