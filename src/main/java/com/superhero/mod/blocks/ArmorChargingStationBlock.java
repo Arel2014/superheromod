@@ -44,4 +44,14 @@ public class ArmorChargingStationBlock extends BlockWithEntity {
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.MODEL;
     }
+
+    @Override
+    public net.minecraft.util.math.BlockPos getCodec() {
+        return null;
+    }
+
+    @Override
+    public com.mojang.serialization.MapCodec<? extends BlockWithEntity> getCodec() {
+        return net.minecraft.block.Blocks.createCodec(ArmorChargingStationBlock::new);
+    }
 }
