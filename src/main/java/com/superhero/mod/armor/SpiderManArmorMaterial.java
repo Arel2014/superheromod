@@ -1,49 +1,29 @@
 package com.superhero.mod.armor;
 
-import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterial;
-import net.minecraft.recipe.Ingredient;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
+import java.util.Map;
 
-public class SpiderManArmorMaterial implements ArmorMaterial {
+public class SpiderManArmorMaterial {
 
-    public static final RegistryEntry<ArmorMaterial> INSTANCE = ArmorMaterial.createEntry(
-        new SpiderManArmorMaterialImpl()
+    public static final RegistryEntry<ArmorMaterial> INSTANCE = RegistryEntry.of(
+        new ArmorMaterial(
+            Map.of(
+                net.minecraft.item.ArmorItem.Type.HELMET, 3,
+                net.minecraft.item.ArmorItem.Type.CHESTPLATE, 6,
+                net.minecraft.item.ArmorItem.Type.LEGGINGS, 5,
+                net.minecraft.item.ArmorItem.Type.BOOTS, 2
+            ),
+            25,
+            SoundEvents.ITEM_ARMOR_EQUIP_LEATHER,
+            () -> net.minecraft.recipe.Ingredient.EMPTY,
+            List.of(new ArmorMaterial.Layer(Identifier.of("superheromod", "spiderman"))),
+            0.5f,
+            0.0f
+        )
     );
-
-    public static class SpiderManArmorMaterialImpl implements ArmorMaterial {
-        @Override
-        public int getDurability(ArmorItem.Type type) {
-            return switch (type) {
-                case HELMET -> 220;
-                case CHESTPLATE -> 320;
-                case LEGGINGS -> 300;
-                case BOOTS -> 260;
-                default -> 200;
-            };
-        }
-        @Override
-        public int getProtection(ArmorItem.Type type) {
-            return switch (type) {
-                case HELMET -> 3;
-                case CHESTPLATE -> 6;
-                case LEGGINGS -> 5;
-                case BOOTS -> 2;
-                default -> 2;
-            };
-        }
-        @Override public int getEnchantability() { return 25; }
-        @Override public RegistryEntry<SoundEvent> getEquipSound() { return SoundEvents.ITEM_ARMOR_EQUIP_LEATHER; }
-        @Override public Ingredient getRepairIngredient() { return Ingredient.EMPTY; }
-        @Override public float getToughness() { return 0.5f; }
-        @Override public float getKnockbackResistance() { return 0.0f; }
-        @Override public List<Layer> getLayers() {
-            return List.of(new Layer(Identifier.of("superheromod", "spiderman")));
-        }
-    }
 }
