@@ -14,7 +14,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -38,13 +37,12 @@ public class IronManRepulsorItem extends Item {
 
             ItemStack chest = ArmorHelper.getIronManChestplate(player);
             if (!ChargeHelper.hasEnough(chest)) {
-                player.sendMessage(Text.literal("§c⚡ Charge too low! Visit charging station."), true);
+                player.sendMessage(Text.literal("§c⚡ Charge too low!"), true);
                 return TypedActionResult.fail(stack);
             }
 
             ChargeHelper.drain(chest, 0.5f);
 
-            // Find entity in line of sight and blast it
             Vec3d start = player.getEyePos();
             Vec3d dir = player.getRotationVec(1.0f);
             Vec3d end = start.add(dir.multiply(40));
@@ -73,15 +71,14 @@ public class IronManRepulsorItem extends Item {
                 target.velocityModified = true;
             }
 
-            // Particles along blast path
             if (world instanceof ServerWorld sw) {
                 for (int i = 1; i <= 15; i++) {
                     Vec3d p = start.add(dir.multiply(i * 2));
                     sw.spawnParticles(ParticleTypes.END_ROD, p.x, p.y, p.z, 2, 0.1, 0.1, 0.1, 0);
-                    sw.spawnParticles(ParticleTypes.ELECTRIC_SPARK, p.x, p.y, p.z, 1, 0.05, 0.05, 0.05, 0);
                 }
                 if (target != null) {
-                    sw.spawnParticles(ParticleTypes.EXPLOSION, target.getX(), target.getY() + 1, target.getZ(), 5, 0.3, 0.3, 0.3, 0);
+                    sw.spawnParticles(ParticleTypes.EXPLOSION,
+                            target.getX(), target.getY() + 1, target.getZ(), 5, 0.3, 0.3, 0.3, 0);
                 }
             }
 
