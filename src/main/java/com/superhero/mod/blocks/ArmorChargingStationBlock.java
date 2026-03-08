@@ -1,15 +1,11 @@
 package com.superhero.mod.blocks;
 
-import com.superhero.mod.armor.IronManArmorItem;
 import com.superhero.mod.registry.ModBlockEntities;
-import com.superhero.mod.util.ChargeHelper;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -28,7 +24,7 @@ public class ArmorChargingStationBlock extends BlockWithEntity {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, ModBlockEntities.CHARGING_STATION,
+        return validateTicker(type, ModBlockEntities.CHARGING_STATION,
                 (w, pos, s, be) -> ArmorChargingStationBlockEntity.tick(w, pos, s, be));
     }
 
