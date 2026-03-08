@@ -9,17 +9,15 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class ArmorChargingStationBlockEntity extends BlockEntity {
 
-    // 0.25 MC day = 6000 ticks -> 100% charge / 6000 ticks
     private static final float CHARGE_PER_TICK = 100.0f / 6000.0f;
-
     private ItemStack storedArmor = ItemStack.EMPTY;
 
     public ArmorChargingStationBlockEntity(BlockPos pos, BlockState state) {
@@ -46,7 +44,7 @@ public class ArmorChargingStationBlockEntity extends BlockEntity {
                 player.sendMessage(Text.literal("§b⚡ Chestplate placed for charging..."), true);
                 markDirty();
             } else {
-                player.sendMessage(Text.literal("§cPlace Iron Man chestplate in hand first, then right-click!"), true);
+                player.sendMessage(Text.literal("§cEquip Iron Man chestplate first!"), true);
             }
         } else {
             float charge = ChargeHelper.getCharge(storedArmor);
@@ -63,18 +61,18 @@ public class ArmorChargingStationBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt) {
-        super.writeNbt(nbt);
+    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+        super.writeNbt(nbt, registries);
         if (!storedArmor.isEmpty()) {
-            nbt.put("stored_armor", storedArmor.writeNbt(new NbtCompound()));
+            nbt.put("stored_armor", storedArmor.encode(registries));
         }
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
-        if (nbt.contains("stored_armor")) {
-            storedArmor = ItemStack.fromNbt(nbt.getCompound("stored_armor"));
+    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
+        super.readNbt(nbt, registries);
+        if (nbt.contains("stored_armor", NbtElement.COMPOUND_TYPE)) {
+            storedArmor = ItemStack.fromNbt(registries, nbt.getCompound("stored_armor")).orElse(ItemStack.EMPTY);
         }
     }
 }
