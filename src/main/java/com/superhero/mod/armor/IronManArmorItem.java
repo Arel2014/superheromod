@@ -2,6 +2,7 @@ package com.superhero.mod.armor;
 
 import com.superhero.mod.util.ChargeHelper;
 import net.minecraft.item.ArmorItem;
+import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.registry.entry.RegistryEntry;
