@@ -21,44 +21,38 @@ import java.util.UUID;
 
 public class IronManEvents {
 
-    // 100% charge / 6000 ticks
     private static final float FLIGHT_DRAIN_PER_TICK = 100.0f / 6000.0f;
-    private static final Map<UUID, Boolean> wasFlying = new HashMap<>();
 
     public static void register() {
 
-        // Server tick - handle flight
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             for (var player : server.getPlayerManager().getPlayerList()) {
                 handlePlayerTick(player);
             }
         });
 
-        // Left click on entity = web pull (if holding web shooter)
         AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
             ItemStack stack = player.getMainHandStack();
             if (stack.getItem() instanceof WebShooterItem && entity instanceof LivingEntity living) {
                 if (!world.isClient()) {
                     WebShooterItem.handleLeftClick(player, living);
                 }
-                return ActionResult.FAIL; // Cancel normal attack
+                return ActionResult.FAIL;
             }
             return ActionResult.PASS;
         });
 
-        // Cancel fall damage for Iron Man
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
             if (entity instanceof PlayerEntity player
                     && source.equals(entity.getWorld().getDamageSources().fall())) {
                 if (ArmorHelper.isWearingFullIronMan(player)) {
                     ItemStack chest = ArmorHelper.getIronManChestplate(player);
                     if (ChargeHelper.hasEnough(chest)) {
-                        // Land with particles
                         if (entity.getWorld() instanceof ServerWorld sw && amount > 3) {
                             sw.spawnParticles(ParticleTypes.EXPLOSION,
                                     player.getX(), player.getY(), player.getZ(), 4, 1.0, 0, 1.0, 0.1);
                         }
-                        return false; // Cancel damage
+                        return false;
                     }
                 }
             }
@@ -88,11 +82,9 @@ public class IronManEvents {
                 player.sendAbilitiesUpdate();
             }
 
-            // Drain charge while flying (not with elytra)
             if (player.getAbilities().flying && !hasElytra) {
                 ChargeHelper.drain(chest, FLIGHT_DRAIN_PER_TICK);
 
-                // Thruster particles
                 ServerWorld sw = (ServerWorld) player.getWorld();
                 sw.spawnParticles(ParticleTypes.FLAME,
                         player.getX(), player.getY() - 0.5, player.getZ(),
@@ -102,7 +94,6 @@ public class IronManEvents {
                         2, 0.1, 0.0, 0.1, 0.02);
             }
         } else {
-            // Charge too low
             if (player.getAbilities().allowFlying) {
                 player.getAbilities().allowFlying = false;
                 player.getAbilities().flying = false;
