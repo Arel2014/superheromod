@@ -1,5 +1,6 @@
 package com.superhero.mod.blocks;
 
+import com.mojang.serialization.MapCodec;
 import com.superhero.mod.registry.ModBlockEntities;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -13,8 +14,15 @@ import net.minecraft.world.World;
 
 public class ArmorChargingStationBlock extends BlockWithEntity {
 
+    public static final MapCodec<ArmorChargingStationBlock> CODEC = createCodec(ArmorChargingStationBlock::new);
+
     public ArmorChargingStationBlock(Settings settings) {
         super(settings);
+    }
+
+    @Override
+    public MapCodec<? extends BlockWithEntity> getCodec() {
+        return CODEC;
     }
 
     @Override
@@ -43,15 +51,5 @@ public class ArmorChargingStationBlock extends BlockWithEntity {
     @Override
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.MODEL;
-    }
-
-    @Override
-    public net.minecraft.util.math.BlockPos getCodec() {
-        return null;
-    }
-
-    @Override
-    public com.mojang.serialization.MapCodec<? extends BlockWithEntity> getCodec() {
-        return net.minecraft.block.Blocks.createCodec(ArmorChargingStationBlock::new);
     }
 }
