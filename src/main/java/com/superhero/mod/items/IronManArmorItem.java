@@ -11,7 +11,6 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
 import java.util.List;
@@ -28,42 +27,31 @@ public class IronManArmorItem extends ArmorItem {
             ItemStack legs = player.getEquippedStack(EquipmentSlot.LEGS);
             ItemStack feet = player.getEquippedStack(EquipmentSlot.FEET);
 
-            // --- %5 ŞARJ KONTROLÜ ---
+            // --- KOŞUL: %5 ŞARJ KONTROLÜ ---
             if (!ChargeHelper.canWork(chest)) {
                 disableSystems(player);
                 return;
             }
 
-            // --- IP: PANTOLON GÖREVİ (Tarifleri Açma ve Otomatik Saldırı) ---
-            if (legs.getItem() == ModItems.IRONMAN_LEGGINGS) {
-                // Tarif açma (Tony Stark Veritabanı)
-                if (player instanceof ServerPlayerEntity serverPlayer) {
-                    serverPlayer.sendMessage(Text.literal("§b[JARVIS]: §fYeni üretim planları indirildi."), true);
-                    // Not: Teknik olarak tarifler JSON ile gelir ama bu kod sistemin çalıştığını doğrular.
-                }
-                
-                // Otomatik Saldırı: Sadece IP varken 3 blok, Full Setken 8 blok
-                if (SuperHeroMod.autoAttackEnabled) {
-                    double range = isFullSet(player) ? 8.0 : 3.0;
-                    handleAutoAttack(player, world, range);
-                }
-            }
-
-            // --- IB: BOTLARIN GÖREVİ (Uçuş ve Düşme Hasarı) ---
+            // --- KOŞUL: IB (BOTLAR) - YAVAŞ UÇUŞ VE DÜŞME HASARI ---
             if (feet.getItem() == ModItems.IRONMAN_BOOTS) {
                 player.getAbilities().allowFlying = true;
-                player.fallDistance = 0; // Düşme hasarını engeller
+                player.fallDistance = 0; // Düşme hasarını engelle
                 
-                // Tek başına botlar varsa yavaş uçuş, full setse ayarlanabilir hız
                 if (!isFullSet(player)) {
-                    player.getAbilities().setFlySpeed(0.02f);
+                    player.getAbilities().setFlySpeed(0.02f); // Tek başına yavaş uçuş
                 } else {
                     player.getAbilities().setFlySpeed(0.05f * SuperHeroMod.flightSpeed);
                 }
             } else if (!player.isCreative()) {
-                // Botlar yoksa uçuşu kapat
                 player.getAbilities().allowFlying = false;
                 player.getAbilities().flying = false;
+            }
+
+            // --- KOŞUL: IP (PANTOLON) - OTOMATİK SALDIRI (3/8 BLOK) ---
+            if (legs.getItem() == ModItems.IRONMAN_LEGGINGS && SuperHeroMod.autoAttackEnabled) {
+                double range = isFullSet(player) ? 8.0 : 3.0;
+                handleAutoAttack(player, world, range);
             }
             
             player.sendAbilitiesUpdate();
@@ -73,14 +61,9 @@ public class IronManArmorItem extends ArmorItem {
     private void handleAutoAttack(PlayerEntity player, World world, double range) {
         List<Entity> targets = world.getOtherEntities(player, player.getBoundingBox().expand(range), 
             e -> e instanceof LivingEntity && !(e instanceof PlayerEntity));
-        
         for (Entity target : targets) {
             if (target instanceof LivingEntity living && player.age % 20 == 0) {
-                living.damage(world.getDamageSources().magic(), 5.0f);
-                // Saldırı partikülü (Lazer efekti gibi)
-                ((net.minecraft.server.world.ServerWorld)world).spawnParticles(
-                    net.minecraft.particle.ParticleTypes.ELECTRIC_SPARK, 
-                    living.getX(), living.getY() + 1, living.getZ(), 5, 0.1, 0.1, 0.1, 0.05);
+                living.damage(world.getDamageSources().magic(), 4.0f);
             }
         }
     }
@@ -93,11 +76,11 @@ public class IronManArmorItem extends ArmorItem {
     }
 
     private void disableSystems(PlayerEntity player) {
-        if (!player.isCreative()) {
+        if (!player.isCreative() && player.getAbilities().allowFlying) {
             player.getAbilities().allowFlying = false;
             player.getAbilities().flying = false;
             player.sendAbilitiesUpdate();
-            player.sendMessage(Text.literal("§c⚡ Enerji %5 Altında! Zırh Sistemleri Kapandı."), true);
+            player.sendMessage(Text.literal("§c⚡ Enerji Kritik! Sistemler Kapatıldı."), true);
         }
     }
 }
