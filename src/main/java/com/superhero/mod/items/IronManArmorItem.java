@@ -1,27 +1,44 @@
-package com.superhero.mod.util;
+package com.superhero.mod.items;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.world.World;
 
-public class ChargeHelper {
-    public static final float MAX_CHARGE = 100.0f;
-    public static final float MIN_CHARGE = 5.0f; // Senin %5 kuralın
+public class IronManArmorItem extends ArmorItem {
+    public IronManArmorItem(RegistryEntry<ArmorMaterial> material, Type type, Settings settings) {
+        super(material, type, settings);
+    }
 
-    public static float getCharge(ItemStack stack) {
-        if (stack.isEmpty()) return 0;
-        NbtCompound nbt = stack.getOrCreateNbt();
-        if (!nbt.contains("ironman_charge")) {
-            nbt.putFloat("ironman_charge", MAX_CHARGE);
+    @Override
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        if (!world.isClient() && entity instanceof PlayerEntity player) {
+            if (hasFullSuitOfArmorOn(player)) {
+                player.getAbilities().allowFlying = true;
+                player.sendAbilitiesUpdate();
+            } else if (!player.isCreative() && !player.isSpectator()) {
+                player.getAbilities().allowFlying = false;
+                player.getAbilities().flying = false;
+                player.sendAbilitiesUpdate();
+            }
         }
-        return nbt.getFloat("ironman_charge");
+        super.inventoryTick(stack, world, entity, slot, selected);
     }
 
-    public static boolean canWork(ItemStack stack) {
-        return !stack.isEmpty() && getCharge(stack) >= MIN_CHARGE;
-    }
+    private boolean hasFullSuitOfArmorOn(PlayerEntity player) {
+        ItemStack boots = player.getEquippedStack(EquipmentSlot.FEET);
+        ItemStack leggings = player.getEquippedStack(EquipmentSlot.LEGS);
+        ItemStack chestplate = player.getEquippedStack(EquipmentSlot.CHEST);
+        ItemStack helmet = player.getEquippedStack(EquipmentSlot.HEAD);
 
-    public static void drain(ItemStack stack, float amount) {
-        float current = getCharge(stack);
-        stack.getOrCreateNbt().putFloat("ironman_charge", Math.max(0, current - amount));
+        return !boots.isEmpty() && !leggings.isEmpty() && !chestplate.isEmpty() && !helmet.isEmpty() &&
+               boots.getItem() instanceof IronManArmorItem &&
+               leggings.getItem() instanceof IronManArmorItem &&
+               chestplate.getItem() instanceof IronManArmorItem &&
+               helmet.getItem() instanceof IronManArmorItem;
     }
 }
