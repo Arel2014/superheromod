@@ -15,7 +15,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.World.ExplosionSourceType;
 
 public class IronManRepulsorItem extends Item {
     public IronManRepulsorItem(Settings settings) { super(settings); }
@@ -28,7 +27,7 @@ public class IronManRepulsorItem extends Item {
         // --- KOŞUL: FULL SET KONTROLÜ ---
         boolean isFullSet = isFullIronMan(player);
         
-        // --- KOŞUL: ŞARJ KONTROLÜ ---
+        // --- KOŞUL: %5 ŞARJ KONTROLÜ ---
         if (!ChargeHelper.canWork(chest) && isFullSet) {
             return TypedActionResult.fail(stack);
         }
@@ -38,24 +37,22 @@ public class IronManRepulsorItem extends Item {
             Vec3d start = player.getEyePos();
             Vec3d dir = player.getRotationVec(1.0f);
 
-            // --- AYAR: SNIPER VS TARAMALI ---
+            // --- AYAR: SNIPER VS TARAMALI (Senin İstediğin) ---
             float damage = SuperHeroMod.isSniperMode ? 15.0f : 4.0f;
-            int cooldown = SuperHeroMod.isSniperMode ? 40 : 4; // Sniper yavaş, Taramalı çok hızlı
+            int cooldown = SuperHeroMod.isSniperMode ? 45 : 5; 
             
-            // Atış Menzili ve Görsel
             for (int i = 1; i < 30; i++) {
                 Vec3d point = start.add(dir.multiply(i));
                 serverWorld.spawnParticles(ParticleTypes.END_ROD, point.x, point.y, point.z, 2, 0.1, 0.1, 0.1, 0.0);
                 
-                // Vuruş Kontrolü
                 var targets = world.getOtherEntities(player, player.getBoundingBox().expand(30), e -> e instanceof LivingEntity);
                 for (var target : targets) {
                     if (target.getBoundingBox().contains(point)) {
-                        target.damage(world.getDamageSources().magic(), isFullSet ? damage : 2.0f); // Zırhsızsa çok az hasar
+                        target.damage(world.getDamageSources().magic(), isFullSet ? damage : 1.5f); // Zırhsız çok güçsüz
                         
-                        // --- KOŞUL: FULL SETSE PATLAMA YAP ---
+                        // --- KOŞUL: FULL SET VE SNIPER MODU İSE PATLAMA ---
                         if (isFullSet && SuperHeroMod.isSniperMode) {
-                            world.createExplosion(null, target.getX(), target.getY(), target.getZ(), 2.0f, false, ExplosionSourceType.NONE);
+                            world.createExplosion(null, target.getX(), target.getY(), target.getZ(), 2.0f, false, World.ExplosionSourceType.NONE);
                         }
                         break;
                     }
@@ -64,7 +61,7 @@ public class IronManRepulsorItem extends Item {
 
             world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 1.0f, 2.0f);
             player.getItemCooldownManager().set(this, cooldown);
-            if (isFullSet) ChargeHelper.drain(chest, 0.2f); // Her atış şarj yer
+            if (isFullSet) ChargeHelper.drain(chest, 0.3f); 
         }
 
         return TypedActionResult.success(stack);
