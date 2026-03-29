@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "superheromod",
+  "version": "1.0.0",
+  "name": "SuperHero Mod",
+  "description": "Iron Man & Spider-Man with Custom UI",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.superhero.mod.SuperHeroMod"
+    ],
+    "client": [
+      "com.superhero.mod.SuperHeroModClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21"
+  }
+}
