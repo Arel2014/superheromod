@@ -1,0 +1,41 @@
+package com.superhero.mod.client;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.superhero.mod.items.IronManArmorItem;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
+
+public class JarvisHudOverlay implements HudRenderCallback {
+    // Resmimizin nerede olduğunu oyuna söylüyoruz
+    private static final Identifier JARVIS_HUD = new Identifier("superheromod", "textures/gui/jarvis_hud.png");
+
+    @Override
+    public void onHudRender(DrawContext drawContext, float tickDelta) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        
+        // Eğer oyuncu oyundaysa ve ekranı gizlememişse (F1'e basmamışsa)
+        if (client != null && client.player != null && !client.options.hudHidden) {
+            
+            // Kafasındaki eşyayı kontrol et
+            ItemStack helmet = client.player.getEquippedStack(EquipmentSlot.HEAD);
+            
+            // Eğer kafasındaki eşya BİZİM Iron Man kaskımızsa JARVIS'i aç!
+            if (helmet.getItem() instanceof IronManArmorItem) {
+                int width = client.getWindow().getScaledWidth();
+                int height = client.getWindow().getScaledHeight();
+
+                RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShaderTexture(0, JARVIS_HUD);
+                
+                // Ekranı baştan sona kaplayacak şekilde resmi çiz
+                drawContext.drawTexture(JARVIS_HUD, 0, 0, 0, 0, width, height, width, height);
+            }
+        }
+    }
+}
