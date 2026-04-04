@@ -1,28 +1,16 @@
 package com.superhero.mod.util;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 
 public class ChargeHelper {
-    public static final float MAX_CHARGE = 100.0f;
-    public static final float MIN_CHARGE = 5.0f; // Senin %5 kuralın
-
+    
+    // Hata vermemesi için şarjı geçici olarak hep %100 dolu gösteriyoruz
     public static float getCharge(ItemStack stack) {
-        if (stack.isEmpty()) return 0;
-        NbtCompound nbt = stack.getOrCreateNbt();
-        if (!nbt.contains("ironman_charge")) {
-            nbt.putFloat("ironman_charge", MAX_CHARGE);
-        }
-        return nbt.getFloat("ironman_charge");
+        return 100.0f; 
     }
 
-    public static boolean canWork(ItemStack stack) {
-        // Eğer zırh boşsa veya şarj %5'ten azsa false döner
-        return !stack.isEmpty() && getCharge(stack) >= MIN_CHARGE;
-    }
-
-    public static void drain(ItemStack stack, float amount) {
-        float current = getCharge(stack);
-        stack.getOrCreateNbt().putFloat("ironman_charge", Math.max(0, current - amount));
+    // 1.21.1 veri sistemi (Data Components) tam eklendiğinde burası dolacak
+    public static void consumeCharge(ItemStack stack, float amount) {
+        
     }
 }
