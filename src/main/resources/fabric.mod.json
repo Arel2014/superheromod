@@ -7,7 +7,12 @@
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
-    "main": [ "com.superhero.mod.SuperHeroMod" ]
+    "main": [
+      "com.superhero.mod.SuperHeroMod"
+    ],
+    "client": [
+      "com.superhero.mod.SuperheroModClient"
+    ]
   },
   "depends": {
     "fabricloader": ">=0.15.11",
