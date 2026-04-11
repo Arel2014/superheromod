@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.RenderTickCounter; // Bu satır önemli
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -25,11 +25,19 @@ public class JarvisHudOverlay implements HudRenderCallback {
                 int width = client.getWindow().getScaledWidth();
                 int height = client.getWindow().getScaledHeight();
 
+                // 🌟 CAM EFEKTİNİ AÇIYORUZ 🌟
+                RenderSystem.enableBlend();
+                RenderSystem.defaultBlendFunc();
+
                 RenderSystem.setShader(GameRenderer::getPositionTexProgram);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.setShaderTexture(0, JARVIS_HUD);
                 
+                // Resmi tüm ekrana çiz
                 drawContext.drawTexture(JARVIS_HUD, 0, 0, 0, 0, width, height, width, height);
+
+                // 🌟 CAM EFEKTİNİ KAPATIYORUZ (Diğer yazılar bozulmasın diye) 🌟
+                RenderSystem.disableBlend();
             }
         }
     }
