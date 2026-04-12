@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "superheromod:item/ironman_helmet"
+    "layer0": "superheromod:item/ironman_leggings"
   }
 }
